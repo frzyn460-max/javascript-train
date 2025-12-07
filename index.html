@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /> <!-- تعیین نوع کاراکترهای صفحه -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- ریسپانسیو شدن صفحه -->
+  <title>Javascript-Train</title>
+
+  <style>
+    /* بارگذاری فونت ایران‌سن‌سنس از CDN */
+    @import url("https://cdn.jsdelivr.net/npm/iransansx/css/font-face.css");
+
+    /* ریست کردن حاشیه و پدینگ و استفاده از فونت tanha */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: tanha;
+    }
+
+    /* استایل کلی بدنه صفحه + بک‌گراند گرادینت */
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ---- بخش مربوط به ذرات متحرک پس‌زمینه ---- */
+    .particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 15s infinite ease-in-out;
+    }
+
+    /* انیمیشن شناور شدن ذرات */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) translateX(0);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+      }
+    }
+
+    /* ---- عنوان اصلی صفحه ---- */
+    h1 {
+      font-size: 3.5rem;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 60px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      animation: titlePulse 2s ease-in-out infinite;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* افکت پالس نور روی عنوان */
+    @keyframes titlePulse {
+      0%, 100% {
+        text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+      50% {
+        text-shadow: 0 5px 25px rgba(255, 255, 255, 0.5),
+                     0 0 40px rgba(102, 126, 234, 0.6);
+      }
+    }
+
+    /* ظرف اصلی محتوا */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 900px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* شبکه دکمه‌ها */
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px;
+      width: 100%;
+      animation: slideUp 0.8s ease-out;
+    }
+
+    /* انیمیشن بالا آمدن دکمه‌ها هنگام لود */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- استایل دکمه‌ها ---- */
+    .btn {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px); /* افکت شیشه‌ای */
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 30px 20px;
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+    }
+
+    /* افکت نور هنگام هاور */
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    /* حرکت و تغییر رنگ دکمه روی هاور */
+    .btn:hover {
+      transform: translateY(-10px) scale(1.05);
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.3),
+        0 0 30px rgba(102, 126, 234, 0.5),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    /* حالت کلیک */
+    .btn:active {
+      transform: translateY(-5px) scale(1.02);
+    }
+
+    /* عدد بالای هر دکمه */
+    .btn-number {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.2);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    /* ---- بخش نمایش پیشرفت ---- */
+    .progress-info {
+      margin-top: 50px;
+      text-align: center;
+      color: white;
+      font-size: 1.1rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px 40px;
+      border-radius: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      animation: fadeInUp 1s ease-out 0.5s backwards;
+    }
+
+    /* انیمیشن بالا آمدن */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* نوار پیشرفت */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    /* قسمت پر شدن نوار */
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(102, 126, 234, 0.8);
+    }
+
+    /* ---- ریسپانسیو ---- */
+    @media (max-width: 900px) {
+      .buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+      }
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 40px;
+      }
+      .btn {
+        padding: 25px 15px;
+        font-size: 1.2rem;
+        min-height: 100px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .buttons {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .btn {
+        padding: 20px 15px;
+        font-size: 1.1rem;
+      }
+    }
+
+    /* Tooltip زیر دکمه */
+    .tooltip {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: transform 0.3s ease;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* نمایش تولتیپ هنگام هاور */
+    .btn:hover .tooltip {
+      transform: translateX(-50%) scale(1);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- عنوان اصلی صفحه -->
+  <h1>🚀 Javascript-Train</h1>
+  
+  <div class="container">
+
+    <!-- دکمه‌ها -->
+    <div class="buttons">
+
+      <!-- هر دکمه یک Part است + tooltip -->
+      <a href="#part1" class="btn" data-part="1">
+        <span class="btn-number">1</span>
+        Part 1
+        <span class="tooltip">شروع آموزش</span>
+      </a>
+
+      <a href="#part2" class="btn" data-part="2">
+        <span class="btn-number">2</span>
+        Part 2
+        <span class="tooltip">ادامه مسیر</span>
+      </a>
+
+      <a href="#part3" class="btn" data-part="3">
+        <span class="btn-number">3</span>
+        Part 3
+        <span class="tooltip">مفاهیم پیشرفته</span>
+      </a>
+
+      <a href="#part4" class="btn" data-part="4">
+        <span class="btn-number">4</span>
+        Part 4
+        <span class="tooltip">تمرین عملی</span>
+      </a>
+
+      <a href="#part5" class="btn" data-part="5">
+        <span class="btn-number">5</span>
+        Part 5
+        <span class="tooltip">پروژه‌های کاربردی</span>
+      </a>
+
+      <a href="#part6" class="btn" data-part="6">
+        <span class="btn-number">6</span>
+        Part 6
+        <span class="tooltip">تکنیک‌های حرفه‌ای</span>
+      </a>
+
+      <a href="#part7" class="btn" data-part="7">
+        <span class="btn-number">7</span>
+        Part 7
+        <span class="tooltip">بهینه‌سازی کد</span>
+      </a>
+
+      <a href="#part8" class="btn" data-part="8">
+        <span class="btn-number">8</span>
+        Part 8
+        <span class="tooltip">تسلط کامل</span>
+      </a>
+
+    </div>
+
+    <!-- نمایش میزان پیشرفت -->
+    <div class="progress-info">
+      <div>
+        پیشرفت شما:
+        <strong><span id="completedParts">0</span>/8</strong>
+        بخش
+      </div>
+
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ------------------ ساخت ذرات متحرک ------------------ */
+    function createParticles() {
+      const particleCount = 20; // تعداد ذرات
+
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+
+        const size = Math.random() * 60 + 20; // اندازه تصادفی بین 20 تا 80px
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+
+        particle.style.left = Math.random() * 100 + '%'; // محل تصادفی در افق
+
+        particle.style.animationDelay = Math.random() * 15 + 's'; // تاخیر شروع
+        particle.style.animationDuration = (Math.random() * 10 + 10) + 's'; // طول انیمیشن
+
+        document.body.appendChild(particle); // اضافه کردن به صفحه
+      }
+    }
+
+    /* ------------------ سیستم ثبت پیشرفت ------------------ */
+
+    const completedParts = new Set(); // یک مجموعه برای ذخیره بخش‌های انجام‌شده
+
+    const buttons = document.querySelectorAll('.btn'); // تمام دکمه‌ها
+    const progressFill = document.getElementById('progressFill'); // پرکننده نوار
+    const completedPartsText = document.getElementById('completedParts'); // نمایش عددی
+
+    /* آپدیت نوار پیشرفت */
+    function updateProgress() {
+      const percentage = (completedParts.size / 8) * 100;
+      progressFill.style.width = percentage + '%';
+      completedPartsText.textContent = completedParts.size;
+    }
+
+    /* رویداد کلیک روی دکمه‌ها */
+    buttons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const partNumber = btn.getAttribute('data-part'); // گرفتن شماره بخش
+        completedParts.add(partNumber); // اضافه کردن به پیشرفت
+        updateProgress(); // بروزرسانی نوار پیشرفت
+        
+        /* ---- افکت موجی (Ripple Effect) ---- */
+        const ripple = document.createElement('span');
+        const rect = btn.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+
+        ripple.style.cssText = `
+          position: absolute;
+          width: ${size}px;
+          height: ${size}px;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 50%;
+          transform: scale(0);
+          animation: ripple 0.6s ease-out;
+          left: ${e.clientX - rect.left - size/2}px;
+          top: ${e.clientY - rect.top - size/2}px;
+          pointer-events: none;
+        `;
+        
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600); // حذف پس از پایان انیمیشن
+      });
+    });
+
+    /* تعریف انیمیشن Ripple */
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes ripple {
+        to { transform: scale(2); opacity: 0; }
+      }
+    `;
+    document.head.appendChild(style);
+
+    /* ---- اجرا هنگام شروع ---- */
+    createParticles();
+    updateProgress();
+
+    /* ------------------ ناوبری با کیبورد ------------------ */
+    document.addEventListener('keydown', (e) => {
+      if (e.key >= '1' && e.key <= '8') {
+        const index = parseInt(e.key) - 1;
+        buttons[index]?.click(); // اجرای کلیک دکمه
+      }
+    });
+  </script>
+</body>
+</html>
