@@ -38,3 +38,32 @@
 // const another = new Circle(3);
 
 // let x = new Object(); // ابجکت خالی با استفاده از constructor function پیشفرض Object
+
+// مثال هایی از constructor function های پیشفرض
+// new string ();
+// new Boolean ();
+// new Number ();
+
+// فانکشن ها هم ابجکت هستند
+
+// function Circle(radius) {
+//     this.radius = radius;
+//     this.draw = function (){
+//         console.log('draw')
+//     }
+// }
+
+// const another = new Circle(3);
+
+// // استفاده از Function constructor برای ساختن ابجکت
+
+// const circle1 = new Function('radius', `
+//     this.radius = radius;
+//     this.draw = function (){
+//         console.log('draw')
+//     }
+// `);
+
+// const circle = new circle1(5);
+// console.log(circle);
+
